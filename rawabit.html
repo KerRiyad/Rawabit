@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rawabit — روابط</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #3D0C6E;
+    --purple-dark: #280849;
+    --purple-mid: #5A1A9E;
+    --green: #2ECC71;
+    --green-dark: #1fa855;
+    --gold: #F4B942;
+    --gold-dark: #e0a330;
+    --white: #FFFFFF;
+    --gray-100: #F8F4FF;
+    --gray-200: #EDE7FF;
+    --gray-400: #B39DD9;
+    --gray-600: #7B5BA6;
+    --text-dark: #1A0A2E;
+    --shadow: 0 20px 60px rgba(61,12,110,0.35);
+    --shadow-sm: 0 4px 20px rgba(61,12,110,0.2);
+    --border: 1px solid rgba(255,255,255,0.12);
+    --radius: 16px;
+    --radius-lg: 24px;
+    --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Outfit', 'Tajawal', sans-serif;
+    background: var(--purple-dark);
+    color: var(--white);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ── Noise overlay ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.6;
+  }
+
+  /* ════════════════ PAGES ════════════════ */
+  .page { display: none; min-height: 100vh; position: relative; z-index: 1; }
+  .page.active { display: flex; flex-direction: column; }
+
+  /* ════════════════ NAV ════════════════ */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 32px;
+    background: rgba(40,8,73,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo img { height: 36px; border-radius: 8px; }
+  .nav-logo-text { font-size: 1.25rem; font-weight: 700; color: var(--white); letter-spacing: -0.5px; }
+  .nav-logo-text span { color: var(--gold); }
+
+  /* Account button */
+  .account-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: var(--border); border-radius: 40px;
+    padding: 8px 16px; cursor: pointer;
+    transition: var(--transition); font-size: 0.9rem; color: var(--white);
+  }
+  .account-btn:hover { background: rgba(255,255,255,0.15); }
+  .account-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--green), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700;
+  }
+
+  /* Points badge */
+  .points-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(244,185,66,0.15);
+    border: 1px solid rgba(244,185,66,0.3);
+    border-radius: 20px; padding: 5px 12px;
+    font-size: 0.85rem; font-weight: 600; color: var(--gold);
+  }
+  .points-badge svg { width: 14px; height: 14px; }
+
+  /* ════════════════ DROPDOWN SIDEBAR ════════════════ */
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 200;
+  }
+  .sidebar-overlay.show { display: block; }
+  .sidebar {
+    position: fixed; top: 0; right: -320px;
+    width: 300px; height: 100vh;
+    background: linear-gradient(180deg, var(--purple-dark) 0%, var(--purple) 100%);
+    border-left: var(--border);
+    z-index: 201; transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+    padding: 0; overflow-y: auto;
+  }
+  .sidebar.open { right: 0; }
+  .sidebar-header {
+    padding: 24px 20px 20px;
+    border-bottom: var(--border);
+    background: rgba(0,0,0,0.2);
+  }
+  .sidebar-user-name { font-size: 1.1rem; font-weight: 700; }
+  .sidebar-user-email { font-size: 0.8rem; color: var(--gray-400); margin-top: 4px; }
+  .sidebar-close {
+    position: absolute; top: 16px; left: 16px;
+    background: rgba(255,255,255,0.1); border: none;
+    width: 32px; height: 32px; border-radius: 50%;
+    color: var(--white); cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: var(--transition);
+  }
+  .sidebar-close:hover { background: rgba(255,255,255,0.2); }
+  .sidebar-section { padding: 16px 20px; border-bottom: var(--border); }
+  .sidebar-label { font-size: 0.75rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .sidebar-select {
+    width: 100%; background: rgba(255,255,255,0.08);
+    border: var(--border); border-radius: 10px;
+    padding: 10px 14px; color: var(--white);
+    font-family: inherit; font-size: 0.9rem; cursor: pointer;
+    appearance: none; outline: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23B39DD9' fill='none' stroke-width='2'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    padding-right: 32px;
+  }
+  .theme-options { display: flex; gap: 10px; flex-wrap: wrap; }
+  .theme-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent;
+    cursor: pointer; transition: var(--transition);
+  }
+  .theme-btn.selected { border-color: var(--gold); transform: scale(1.1); }
+  .sidebar-logout-btn {
+    width: calc(100% - 40px); margin: 16px 20px;
+    background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.3);
+    border-radius: var(--radius); padding: 12px;
+    color: #e74c3c; font-family: inherit; font-size: 0.95rem;
+    font-weight: 600; cursor: pointer; transition: var(--transition);
+  }
+  .sidebar-logout-btn:hover { background: rgba(231,76,60,0.25); }
+
+  /* ════════════════ LANDING PAGE ════════════════ */
+  .hero {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 60px 24px;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 700px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(46,204,113,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-logo { width: 100px; height: 100px; margin-bottom: 32px; border-radius: 24px; }
+  .hero-title {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 900; line-height: 1.1;
+    background: linear-gradient(135deg, var(--white) 40%, var(--green) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 12px; letter-spacing: -2px;
+  }
+  .hero-subtitle {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem); font-weight: 300;
+    color: var(--gray-400); margin-bottom: 48px; max-width: 500px;
+    line-height: 1.6;
+  }
+  .hero-features {
+    display: flex; gap: 16px; margin-bottom: 48px;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .feature-pill {
+    background: rgba(255,255,255,0.07); border: var(--border);
+    border-radius: 40px; padding: 8px 20px;
+    font-size: 0.85rem; color: var(--gray-400);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .feature-pill .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+  }
+  .cta-btn {
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    color: var(--white); border: none; border-radius: 50px;
+    padding: 18px 52px; font-family: inherit; font-size: 1.15rem;
+    font-weight: 700; cursor: pointer; transition: var(--transition);
+    box-shadow: 0 8px 40px rgba(46,204,113,0.4);
+    letter-spacing: -0.3px;
+  }
+  .cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 50px rgba(46,204,113,0.55);
+  }
+
+  /* Stats */
+  .hero-stats {
+    display: flex; gap: 48px; margin-top: 64px;
+    padding: 24px 40px; background: rgba(255,255,255,0.04);
+    border: var(--border); border-radius: var(--radius-lg);
+    flex-wrap: wrap; justify-content: center;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-size: 1.8rem; font-weight: 900; color: var(--green); }
+  .stat-label { font-size: 0.78rem; color: var(--gray-400); margin-top: 2px; }
+
+  /* ════════════════ AUTH PAGE ════════════════ */
+  .auth-container {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 40px 24px;
+  }
+  .auth-card {
+    background: rgba(255,255,255,0.04);
+    border: var(--border); border-radius: var(--radius-lg);
+    padding: 40px 36px; width: 100%; max-width: 420px;
+    backdrop-filter: blur(20px);
+  }
+  .auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; justify-content: center; }
+  .auth-logo img { height: 40px; border-radius: 10px; }
+  .auth-tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px; margin-bottom: 28px; }
+  .auth-tab {
+    flex: 1; padding: 10px; border: none; border-radius: 10px;
+    background: transparent; color: var(--gray-400);
+    font-family: inherit; font-size: 0.9rem; font-weight: 500; cursor: pointer;
+    transition: var(--transition);
+  }
+  .auth-tab.active { background: var(--purple-mid); color: var(--white); font-weight: 600; }
+  .auth-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+  .auth-sub { font-size: 0.85rem; color: var(--gray-400); margin-bottom: 24px; }
+  .input-group { margin-bottom: 16px; }
+  .input-label { font-size: 0.8rem; color: var(--gray-400); margin-bottom: 6px; display: block; font-weight: 500; }
+  .input-field {
+    width: 100%; background: rgba(255,255,255,0.07); border: var(--border);
+    border-radius: 12px; padding: 12px 16px;
+    color: var(--white); font-family: inherit; font-size: 0.95rem; outline: none;
+    transition: var(--transition);
+  }
+  .input-field:focus { border-color: var(--green); background: rgba(46,204,113,0.07); }
+  .input-field::placeholder { color: var(--gray-400); }
+  .auth-submit {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    border: none; border-radius: 12px; color: var(--white);
+    font-family: inherit; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: var(--transition); margin-top: 8px;
+  }
+  .auth-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(46,204,113,0.4); }
+  .auth-back { text-align: center; margin-top: 16px; }
+  .auth-back a { color: var(--gray-400); font-size: 0.85rem; cursor: pointer; text-decoration: none; }
+  .auth-back a:hover { color: var(--white); }
+
+  /* ════════════════ DASHBOARD ════════════════ */
+  .dashboard-container { flex: 1; padding: 28px 24px; max-width: 900px; width: 100%; margin: 0 auto; }
+  .dashboard-header { margin-bottom: 28px; }
+  .dashboard-welcome { font-size: 1rem; color: var(--gray-400); }
+  .dashboard-title { font-size: 1.8rem; font-weight: 800; margin-top: 4px; }
+  .dashboard-title span { color: var(--gold); }
+
+  /* Points card */
+  .points-card {
+    background: linear-gradient(135deg, rgba(244,185,66,0.12), rgba(244,185,66,0.05));
+    border: 1px solid rgba(244,185,66,0.25);
+    border-radius: var(--radius); padding: 20px 24px; margin-bottom: 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .points-info { display: flex; align-items: center; gap: 14px; }
+  .points-icon {
+    width: 48px; height: 48px; background: rgba(244,185,66,0.2);
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+  }
+  .points-num { font-size: 2rem; font-weight: 900; color: var(--gold); }
+  .points-text { font-size: 0.8rem; color: var(--gray-400); }
+  .earn-btn {
+    background: rgba(244,185,66,0.15); border: 1px solid rgba(244,185,66,0.3);
+    border-radius: 10px; padding: 10px 18px; color: var(--gold);
+    font-family: inherit; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: var(--transition);
+  }
+  .earn-btn:hover { background: rgba(244,185,66,0.25); }
+
+  /* Pages grid */
+  .pages-section { }
+  .section-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; color: var(--gray-200); }
+  .pages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .page-card {
+    background: rgba(255,255,255,0.05); border: var(--border);
+    border-radius: var(--radius); padding: 20px; cursor: pointer;
+    transition: var(--transition); position: relative; overflow: hidden;
+  }
+  .page-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(46,204,113,0.0), rgba(46,204,113,0.06));
+    opacity: 0; transition: var(--transition);
+  }
+  .page-card:hover { border-color: rgba(46,204,113,0.4); transform: translateY(-3px); box-shadow: var(--shadow-sm); }
+  .page-card:hover::before { opacity: 1; }
+  .page-card-new {
+    border: 2px dashed rgba(46,204,113,0.3);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 10px; min-height: 120px;
+  }
+  .page-card-new .new-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: rgba(46,204,113,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; color: var(--green);
+  }
+  .page-card-new .new-label { font-size: 0.9rem; font-weight: 600; color: var(--green); }
+  .page-card-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 6px; }
+  .page-card-meta { font-size: 0.75rem; color: var(--gray-400); }
+  .page-card-badge {
+    display: inline-block; background: rgba(46,204,113,0.15);
+    color: var(--green); border-radius: 6px; padding: 2px 8px;
+    font-size: 0.7rem; font-weight: 700; margin-top: 8px;
+  }
+
+  /* ════════════════ AD MODAL ════════════════ */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7); z-index: 300;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-card {
+    background: linear-gradient(180deg, var(--purple) 0%, var(--purple-dark) 100%);
+    border: var(--border); border-radius: var(--radius-lg);
+    padding: 32px; max-width: 440px; width: 90%;
+    position: relative; text-align: center;
+  }
+  .modal-icon { font-size: 3rem; margin-bottom: 16px; }
+  .modal-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; }
+  .modal-sub { font-size: 0.9rem; color: var(--gray-400); margin-bottom: 24px; line-height: 1.5; }
+
+  /* Ad placeholder */
+  .ad-placeholder {
+    background: rgba(0,0,0,0.3); border: var(--border);
+    border-radius: var(--radius); height: 120px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px; flex-direction: column; gap: 8px;
+    color: var(--gray-400); font-size: 0.85rem;
+  }
+  .ad-placeholder .ad-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; }
+
+  /* Timer */
+  .ad-timer {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-bottom: 20px; font-size: 1rem; font-weight: 600;
+  }
+  .timer-circle {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.15);
+    border-top-color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 800; color: var(--green);
+    animation: spin-timer 1s linear infinite;
+  }
+  @keyframes spin-timer { to { /* no rotation, just for show */ } }
+  .modal-confirm {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    border: none; border-radius: 12px; color: var(--white);
+    font-family: inherit; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: var(--transition);
+  }
+  .modal-confirm:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+  .modal-confirm:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(46,204,113,0.4); }
+  .modal-cancel {
+    background: transparent; border: none; color: var(--gray-400);
+    font-family: inherit; font-size: 0.85rem; cursor: pointer;
+    margin-top: 12px; text-decoration: underline;
+  }
+
+  /* ════════════════ PAGE BUILDER ════════════════ */
+  .builder-container { flex: 1; padding: 24px; max-width: 720px; width: 100%; margin: 0 auto; }
+  .builder-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .back-btn {
+    background: rgba(255,255,255,0.08); border: var(--border);
+    border-radius: 10px; padding: 8px 14px; color: var(--white);
+    font-family: inherit; font-size: 0.85rem; cursor: pointer; transition: var(--transition);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.15); }
+  .builder-title-input {
+    flex: 1; background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,0.15);
+    color: var(--white); font-family: inherit; font-size: 1.4rem; font-weight: 700;
+    padding: 4px 0; outline: none; transition: var(--transition);
+  }
+  .builder-title-input:focus { border-bottom-color: var(--green); }
+  .builder-title-input::placeholder { color: var(--gray-400); font-weight: 400; }
+  .links-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+  .link-item {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,0.05); border: var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+  }
+  .link-icon-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(255,255,255,0.08); border: none;
+    color: var(--gray-400); font-size: 1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .link-inputs { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .link-input {
+    background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.1);
+    color: var(--white); font-family: inherit; font-size: 0.9rem; padding: 4px 0; outline: none;
+    transition: var(--transition);
+  }
+  .link-input:focus { border-bottom-color: var(--green); }
+  .link-input::placeholder { color: var(--gray-600); }
+  .link-delete {
+    background: rgba(231,76,60,0.1); border: none;
+    width: 32px; height: 32px; border-radius: 8px;
+    color: #e74c3c; cursor: pointer; font-size: 0.9rem;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: var(--transition);
+  }
+  .link-delete:hover { background: rgba(231,76,60,0.2); }
+  .add-link-btn {
+    width: 100%; background: rgba(46,204,113,0.08); border: 1.5px dashed rgba(46,204,113,0.3);
+    border-radius: var(--radius); padding: 14px; color: var(--green);
+    font-family: inherit; font-size: 0.95rem; font-weight: 600;
+    cursor: pointer; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .add-link-btn:hover { background: rgba(46,204,113,0.15); }
+  .builder-save {
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    border: none; border-radius: var(--radius); color: var(--white);
+    font-family: inherit; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: var(--transition); margin-top: 8px;
+  }
+  .builder-save:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(46,204,113,0.4); }
+  .share-bar {
+    background: rgba(255,255,255,0.05); border: var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px; margin-top: 16px;
+  }
+  .share-url {
+    flex: 1; background: transparent; border: none;
+    color: var(--gray-400); font-family: 'Courier New', monospace; font-size: 0.85rem; outline: none;
+  }
+  .copy-btn {
+    background: rgba(46,204,113,0.15); border: 1px solid rgba(46,204,113,0.3);
+    border-radius: 8px; padding: 6px 14px; color: var(--green);
+    font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    transition: var(--transition);
+  }
+  .copy-btn:hover { background: rgba(46,204,113,0.25); }
+
+  /* ════════════════ TOAST ════════════════ */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: linear-gradient(135deg, var(--purple-mid), var(--purple));
+    border: var(--border); border-radius: 40px;
+    padding: 12px 24px; font-size: 0.9rem; font-weight: 500;
+    z-index: 1000; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ════════════════ RESPONSIVE ════════════════ */
+  @media (max-width: 600px) {
+    nav { padding: 14px 16px; }
+    .hero { padding: 40px 16px; }
+    .hero-stats { gap: 24px; padding: 20px 24px; }
+    .dashboard-container, .builder-container { padding: 20px 16px; }
+    .auth-card { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     PAGE 1: LANDING
+══════════════════════════════════════ -->
+<div id="page-landing" class="page active">
+  <nav>
+    <a class="nav-logo" href="#">
+      <img id="landing-logo" src="" alt="Rawabit">
+      
+    </a>
+    <button class="cta-btn" style="padding:10px 24px;font-size:0.9rem;" onclick="showPage('page-auth')">Get Started</button>
+  </nav>
+  <div class="hero">
+    <img id="hero-logo-img" src="" alt="Rawabit" class="hero-logo">
+    <h1 class="hero-title">Your Links,<br>One Place</h1>
+    <p class="hero-subtitle">Collect and share all your links in a single beautiful page. Share anywhere, anytime.</p>
+    <div class="hero-features">
+      <div class="feature-pill"><span class="dot" style="background:var(--green)"></span>Free First Page</div>
+      <div class="feature-pill"><span class="dot" style="background:var(--gold)"></span>Earn Points</div>
+      <div class="feature-pill"><span class="dot" style="background:#9B59B6"></span>Custom Themes</div>
+    </div>
+    <button class="cta-btn" onclick="showPage('page-auth')">Get Started — Free</button>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Links per page</div></div>
+      <div class="stat"><div class="stat-num">1</div><div class="stat-label">Free page</div></div>
+      <div class="stat"><div class="stat-num">⚡</div><div class="stat-label">Instant share</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 2: AUTH
+══════════════════════════════════════ -->
+<div id="page-auth" class="page">
+  <nav>
+    <a class="nav-logo" href="#" onclick="showPage('page-landing')">
+      <img id="auth-logo" src="" alt="Rawabit">
+      
+    </a>
+  </nav>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</button>
+        <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+      </div>
+      <!-- Login Form -->
+      <div id="form-login">
+        <h2 class="auth-title">Welcome back</h2>
+        <p class="auth-sub">Login to access your pages</p>
+        <div class="input-group">
+          <label class="input-label">Email address</label>
+          <input class="input-field" type="email" id="login-email" placeholder="you@example.com">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Password</label>
+          <input class="input-field" type="password" id="login-pass" placeholder="••••••••">
+        </div>
+        <button class="auth-submit" onclick="doLogin()">Login</button>
+        <div style="text-align:center;margin-top:10px;">
+          <a style="color:var(--gray-400);font-size:0.82rem;cursor:pointer;" onclick="switchTab('forgot')">Forgot password?</a>
+        </div>
+      </div>
+      <!-- Signup Form -->
+      <div id="form-signup" style="display:none">
+        <h2 class="auth-title">Create account</h2>
+        <p class="auth-sub">Start collecting your links for free</p>
+        <div class="input-group">
+          <label class="input-label">Full name</label>
+          <input class="input-field" type="text" id="signup-name" placeholder="Ahmad Mohamed">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Email address</label>
+          <input class="input-field" type="email" id="signup-email" placeholder="you@example.com">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Password</label>
+          <input class="input-field" type="password" id="signup-pass" placeholder="Min. 6 characters">
+        </div>
+        <button class="auth-submit" onclick="doSignup()">Create Account</button>
+      </div>
+      <!-- Forgot Password Form -->
+      <div id="form-forgot" style="display:none">
+        <h2 class="auth-title">Reset Password</h2>
+        <p class="auth-sub">Enter your email and we'll send you a reset link</p>
+        <div class="input-group">
+          <label class="input-label">Email address</label>
+          <input class="input-field" type="email" id="forgot-email" placeholder="you@example.com">
+        </div>
+        <button class="auth-submit" onclick="doForgotPassword()">Send Reset Link</button>
+        <div style="text-align:center;margin-top:14px;">
+          <a style="color:var(--gray-400);font-size:0.85rem;cursor:pointer;" onclick="switchTab('login')">← Back to Login</a>
+        </div>
+      </div>
+
+      <div class="auth-back"><a onclick="showPage('page-landing')">← Back to home</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 3: DASHBOARD
+══════════════════════════════════════ -->
+<div id="page-dashboard" class="page">
+  <nav>
+    <a class="nav-logo" href="#">
+      <img id="dash-logo" src="" alt="Rawabit">
+      
+    </a>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="points-badge">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span id="nav-points">0</span> pts
+      </div>
+      <button class="account-btn" onclick="toggleSidebar()">
+        <div class="account-avatar" id="dash-avatar">U</div>
+        <span id="dash-username">User</span>
+        <span>▾</span>
+      </button>
+    </div>
+  </nav>
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <div class="dashboard-welcome">Good day 👋</div>
+      <div class="dashboard-title">Your Pages, <span id="dash-name-title">User</span></div>
+    </div>
+    <div class="points-card">
+      <div class="points-info">
+        <div class="points-icon">⭐</div>
+        <div>
+          <div class="points-num" id="dash-points-num">0</div>
+          <div class="points-text">Available Points</div>
+        </div>
+      </div>
+      <button class="earn-btn" onclick="showAdModal()">+ Earn Points</button>
+    </div>
+    <div class="pages-section">
+      <div class="section-title">My Pages</div>
+      <div class="pages-grid" id="pages-grid">
+        <div class="page-card page-card-new" onclick="handleNewPage()">
+          <div class="new-icon">+</div>
+          <div class="new-label">New Page</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 4: BUILDER
+══════════════════════════════════════ -->
+<div id="page-builder" class="page">
+  <nav>
+    <a class="nav-logo" href="#">
+      <img id="builder-logo" src="" alt="Rawabit">
+      
+    </a>
+    <div class="points-badge">
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <span id="builder-points">0</span> pts
+    </div>
+  </nav>
+  <div class="builder-container">
+    <div class="builder-header">
+      <button class="back-btn" onclick="showPage('page-dashboard')">← Back</button>
+      <input class="builder-title-input" id="page-title-input" placeholder="Page name..." maxlength="40">
+    </div>
+    <div class="links-list" id="links-list"></div>
+    <button class="add-link-btn" onclick="addLinkItem()">＋ Add Link</button>
+    <button class="builder-save" onclick="savePage()">Save & Publish</button>
+    <div class="share-bar" id="share-bar" style="display:none">
+      <span>🔗</span>
+      <input class="share-url" id="share-url" readonly>
+      <button class="copy-btn" onclick="copyUrl()">Copy</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+    <div class="sidebar-user-name" id="sb-name">—</div>
+    <div class="sidebar-user-email" id="sb-email">—</div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Language</div>
+    <select class="sidebar-select" id="lang-select" onchange="changeLang(this.value)">
+      <option value="en">🇬🇧 English</option>
+      <option value="ar">🇸🇦 العربية</option>
+    </select>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Theme</div>
+    <div class="theme-options">
+      <button class="theme-btn selected" data-theme="dark" style="background:linear-gradient(135deg,#280849,#3D0C6E)" onclick="setTheme('dark',this)" title="Dark"></button>
+      <button class="theme-btn" data-theme="light" style="background:linear-gradient(135deg,#f5f0ff,#e8d5ff)" onclick="setTheme('light',this)" title="Light"></button>
+      <button class="theme-btn" data-theme="ocean" style="background:linear-gradient(135deg,#0a1628,#1a3a6e)" onclick="setTheme('ocean',this)" title="Ocean"></button>
+      <button class="theme-btn" data-theme="forest" style="background:linear-gradient(135deg,#0a2010,#1a4a20)" onclick="setTheme('forest',this)" title="Forest"></button>
+    </div>
+  </div>
+  <button class="sidebar-logout-btn" onclick="doLogout()">🚪 Logout</button>
+</div>
+
+<!-- ═══════ AD MODAL ═══════ -->
+<div class="modal-overlay" id="ad-modal">
+  <div class="modal-card">
+    <div class="modal-icon">📺</div>
+    <div class="modal-title">Watch & Earn</div>
+    <div class="modal-sub">Watch a short ad to earn <strong style="color:var(--gold)">10 points</strong>. Use points to unlock more pages and features.</div>
+    <div class="ad-placeholder">
+      <div class="ad-label">Advertisement</div>
+      <div style="opacity:0.5">[ Monetag Ad Space ]</div>
+    </div>
+    <div class="ad-timer">
+      <div class="timer-circle" id="ad-timer-circle">30</div>
+      <span id="ad-timer-label">Please wait...</span>
+    </div>
+    <button class="modal-confirm" id="ad-confirm-btn" disabled onclick="claimPoints()">Claim 10 Points</button>
+    <br><button class="modal-cancel" onclick="closeAdModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- ═══════ PAGE-LOCKED MODAL ═══════ -->
+<div class="modal-overlay" id="locked-modal">
+  <div class="modal-card">
+    <div class="modal-icon">🔒</div>
+    <div class="modal-title">Unlock More Pages</div>
+    <div class="modal-sub">Your first page is free!<br>To create more pages, watch <strong style="color:var(--gold)">5 ads</strong> or spend <strong style="color:var(--gold)">50 points</strong>.</div>
+    <button class="modal-confirm" onclick="closeLockedModal();showAdModal()">Watch an Ad (+10 pts)</button>
+    <br><button class="modal-confirm" style="margin-top:10px;background:linear-gradient(135deg,var(--gold-dark),var(--gold))" onclick="spendPointsForPage()">Spend 50 Points (<span id="locked-pts">0</span> available)</button>
+    <br><button class="modal-cancel" onclick="closeLockedModal()">Maybe later</button>
+  </div>
+</div>
+
+<!-- ═══════ TOAST ═══════ -->
+<div id="toast">✓ Done!</div>
+
+<!-- Firebase CDN -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+           onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, setDoc, getDoc }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  // ── Config ──
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAD9LvJxxN9RWRYiA9T03Is02XaoHTeNOM",
+    authDomain: "rawabit-604b7.firebaseapp.com",
+    projectId: "rawabit-604b7",
+    storageBucket: "rawabit-604b7.firebasestorage.app",
+    messagingSenderId: "994766756103",
+    appId: "1:994766756103:web:9fd0d34b2aaec770658da2"
+  };
+
+  const app  = initializeApp(FIREBASE_CONFIG);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // ── State ──
+  let currentUser = null;
+  let userData    = { name:'', email:'', points:0, pages:[] };
+  let adTimerInterval = null;
+  let editingPageIdx  = null;
+  const LOGO_SRC = 'https://i.imgur.com/nYO22jt.png';
+
+  // ── Logo ──
+  document.querySelectorAll('img[id$="-logo"], img.hero-logo')
+    .forEach(img => img.src = LOGO_SRC);
+
+  // ── Auth state listener ──
+  onAuthStateChanged(auth, async user => {
+    if (user) {
+      currentUser = user;
+      await loadUserData(user);
+      showPage('page-dashboard');
+    }
+  });
+
+  // ── Helpers ──
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+  window.showPage = showPage;
+
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+  window.showToast = showToast;
+
+  // ── Auth Tab ──
+  window.switchTab = function(tab) {
+    document.getElementById('form-login').style.display   = tab==='login'   ? 'block' : 'none';
+    document.getElementById('form-signup').style.display  = tab==='signup'  ? 'block' : 'none';
+    document.getElementById('form-forgot').style.display  = tab==='forgot'  ? 'block' : 'none';
+    document.getElementById('tab-login').classList.toggle('active',  tab==='login');
+    document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
+  };
+
+  // ── Sign Up ──
+  window.doSignup = async function() {
+    const name  = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const pass  = document.getElementById('signup-pass').value;
+    if (!name || !email || pass.length < 6) { showToast('⚠ Fill all fields (min 6 chars password)'); return; }
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await updateProfile(cred.user, { displayName: name });
+      await setDoc(doc(db, 'users', cred.user.uid), { name, email, points:0, pages:[] });
+      userData = { name, email, points:0, pages:[] };
+      currentUser = cred.user;
+      updateDashboardUI();
+      showPage('page-dashboard');
+      showToast('🎉 Welcome to Rawabit!');
+    } catch(e) {
+      if (e.code === 'auth/email-already-in-use') showToast('❌ Email already in use');
+      else if (e.code === 'auth/invalid-email')   showToast('❌ Invalid email');
+      else showToast('❌ ' + e.message);
+    }
+  };
+
+  // ── Login ──
+  window.doLogin = async function() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-pass').value;
+    if (!email || !pass) { showToast('⚠ Enter email and password'); return; }
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      currentUser = cred.user;
+      await loadUserData(cred.user);
+      showPage('page-dashboard');
+      showToast('👋 Welcome back!');
+    } catch(e) {
+      if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential')
+        showToast('❌ Wrong email or password');
+      else showToast('❌ ' + e.message);
+    }
+  };
+
+  // ── Forgot Password ──
+  window.doForgotPassword = async function() {
+    const email = document.getElementById('forgot-email').value.trim();
+    if (!email) { showToast('⚠ Enter your email'); return; }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showToast('📧 Reset email sent! Check your inbox.');
+      switchTab('login');
+    } catch(e) {
+      if (e.code === 'auth/user-not-found') showToast('❌ No account with this email');
+      else showToast('❌ ' + e.message);
+    }
+  };
+
+  // ── Logout ──
+  window.doLogout = function() {
+    signOut(auth).then(() => {
+      currentUser = null;
+      userData = { name:'', email:'', points:0, pages:[] };
+      closeSidebar();
+      showPage('page-landing');
+      showToast('👋 Logged out');
+    });
+  };
+
+  // ── Load user data ──
+  async function loadUserData(user) {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (snap.exists()) {
+      userData = snap.data();
+    } else {
+      userData = { name: user.displayName || 'User', email: user.email, points:0, pages:[] };
+    }
+    if (!userData.pages) userData.pages = [];
+    updateDashboardUI();
+  }
+
+  // ── Save user data ──
+  async function saveUserData() {
+    if (!currentUser) return;
+    await setDoc(doc(db, 'users', currentUser.uid), userData);
+  }
+  window.saveUserData = saveUserData;
+
+  // ── Dashboard UI ──
+  function updateDashboardUI() {
+    const n = userData.name || 'User';
+    const initials = n.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('dash-avatar').textContent    = initials;
+    document.getElementById('dash-username').textContent  = n.split(' ')[0];
+    document.getElementById('dash-name-title').textContent = n.split(' ')[0];
+    document.getElementById('nav-points').textContent     = userData.points || 0;
+    document.getElementById('dash-points-num').textContent = userData.points || 0;
+    document.getElementById('sb-name').textContent        = n;
+    document.getElementById('sb-email').textContent       = userData.email || '';
+    renderPagesGrid();
+  }
+  window.updateDashboardUI = updateDashboardUI;
+
+  function renderPagesGrid() {
+    const grid  = document.getElementById('pages-grid');
+    const pages = userData.pages || [];
+    grid.innerHTML = '';
+    const newCard = document.createElement('div');
+    newCard.className = 'page-card page-card-new';
+    newCard.onclick = handleNewPage;
+    newCard.innerHTML = `<div class="new-icon">+</div><div class="new-label">New Page</div>`;
+    grid.appendChild(newCard);
+    pages.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'page-card';
+      card.innerHTML = `
+        <div class="page-card-name">${p.title || 'Untitled'}</div>
+        <div class="page-card-meta">${p.links ? p.links.length : 0} links</div>
+        <div class="page-card-badge">Published</div>`;
+      card.onclick = () => openBuilder(i);
+      grid.appendChild(card);
+    });
+  }
+
+  window.handleNewPage = function handleNewPage() {
+    const pages = userData.pages || [];
+    if (pages.length === 0) {
+      openBuilder(null);
+    } else {
+      document.getElementById('locked-pts').textContent = userData.points || 0;
+      document.getElementById('locked-modal').classList.add('show');
+    }
+  };
+
+  window.closeLockedModal = function() {
+    document.getElementById('locked-modal').classList.remove('show');
+  };
+
+  window.spendPointsForPage = async function() {
+    if ((userData.points || 0) >= 50) {
+      userData.points -= 50;
+      await saveUserData();
+      updateDashboardUI();
+      closeLockedModal();
+      openBuilder(null);
+      showToast('🔓 Page unlocked! (-50 pts)');
+    } else {
+      showToast('⚠ Not enough points');
+      closeLockedModal();
+      showAdModal();
+    }
+  };
+
+  // ── Ad / Points ──
+  let adSeconds = 30;
+  window.showAdModal = function() {
+    adSeconds = 30;
+    const circle = document.getElementById('ad-timer-circle');
+    const btn    = document.getElementById('ad-confirm-btn');
+    const label  = document.getElementById('ad-timer-label');
+    circle.textContent = 30;
+    btn.disabled = true;
+    label.textContent = 'Please wait...';
+    document.getElementById('ad-modal').classList.add('show');
+    adTimerInterval = setInterval(() => {
+      adSeconds--;
+      circle.textContent = adSeconds;
+      if (adSeconds <= 0) {
+        clearInterval(adTimerInterval);
+        btn.disabled = false;
+        label.textContent = 'Ad complete! ✅';
+      }
+    }, 1000);
+  };
+
+  window.closeAdModal = function() {
+    clearInterval(adTimerInterval);
+    document.getElementById('ad-modal').classList.remove('show');
+  };
+
+  window.claimPoints = async function() {
+    userData.points = (userData.points || 0) + 10;
+    await saveUserData();
+    updateDashboardUI();
+    closeAdModal();
+    showToast('⭐ +10 Points earned!');
+  };
+
+  // ── Builder ──
+  function openBuilder(idx) {
+    editingPageIdx = idx;
+    document.getElementById('links-list').innerHTML = '';
+    document.getElementById('share-bar').style.display = 'none';
+    if (idx !== null && userData.pages[idx]) {
+      const p = userData.pages[idx];
+      document.getElementById('page-title-input').value = p.title || '';
+      (p.links || []).forEach(l => addLinkItem(l.label, l.url));
+      document.getElementById('share-url').value = `rawabit.app/p/${currentUser.uid}/${idx}`;
+      document.getElementById('share-bar').style.display = 'flex';
+    } else {
+      document.getElementById('page-title-input').value = '';
+    }
+    document.getElementById('builder-points').textContent = userData.points || 0;
+    showPage('page-builder');
+  }
+  window.openBuilder = openBuilder;
+
+  window.addLinkItem = function(label='', url='') {
+    const list = document.getElementById('links-list');
+    const item = document.createElement('div');
+    item.className = 'link-item';
+    item.innerHTML = `
+      <button class="link-icon-btn">🔗</button>
+      <div class="link-inputs">
+        <input class="link-input" placeholder="Label (e.g. My Website)" value="${label}">
+        <input class="link-input" placeholder="URL (https://...)" value="${url}">
+      </div>
+      <button class="link-delete" onclick="this.parentElement.remove()">✕</button>`;
+    list.appendChild(item);
+  };
+
+  window.savePage = async function() {
+    const title = document.getElementById('page-title-input').value.trim() || 'Untitled';
+    const items = document.querySelectorAll('#links-list .link-item');
+    const links = [];
+    items.forEach(item => {
+      const inputs = item.querySelectorAll('.link-input');
+      const lbl = inputs[0].value.trim();
+      const url = inputs[1].value.trim();
+      if (lbl || url) links.push({ label:lbl, url });
+    });
+    const page = { title, links, createdAt: Date.now() };
+    if (!userData.pages) userData.pages = [];
+    if (editingPageIdx !== null) {
+      userData.pages[editingPageIdx] = page;
+    } else {
+      userData.pages.push(page);
+      editingPageIdx = userData.pages.length - 1;
+    }
+    await saveUserData();
+    updateDashboardUI();
+    document.getElementById('share-url').value = `rawabit.app/p/${currentUser ? currentUser.uid : 'user'}/${editingPageIdx}`;
+    document.getElementById('share-bar').style.display = 'flex';
+    showToast('✅ Page saved!');
+  };
+
+  window.copyUrl = function() {
+    const url = document.getElementById('share-url').value;
+    navigator.clipboard.writeText(url).then(() => showToast('📋 Link copied!'));
+  };
+
+  // ── Sidebar ──
+  window.toggleSidebar = function() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebar-overlay').classList.toggle('show');
+  };
+  window.closeSidebar = function() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('show');
+  };
+  window.changeLang = function(lang) {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  };
+  window.setTheme = function(name, btn) {
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const themes = {
+      dark:   '#280849',
+      light:  '#F5F0FF',
+      ocean:  '#0a1628',
+      forest: '#0a2010'
+    };
+    document.body.style.background = themes[name] || '#280849';
+    showToast('🎨 Theme applied');
+  };
+
+</script>
+
+</body>
+</html>
