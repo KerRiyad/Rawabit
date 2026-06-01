@@ -248,10 +248,24 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
 .design-sec-title{font-size:0.75rem;font-weight:600;color:var(--t2);margin-bottom:10px}
 .design-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}
 .design-label{font-size:0.75rem;color:var(--t2);flex-shrink:0}
-.color-inp{width:34px;height:26px;border:1px solid var(--bd);border-radius:5px;background:transparent;padding:2px;cursor:pointer;}
-.hex-inp{width:72px;background:var(--b2);border:1px solid var(--bd);border-radius:6px;padding:4px 7px;color:var(--t1);font-size:0.72rem;font-family:'Courier New',monospace;transition:var(--tr)}
-.hex-inp:focus{border-color:var(--g)}
-.range-val{font-size:0.7rem;color:var(--t2);min-width:20px;text-align:right}
+.color-inp{width:0;height:0;opacity:0;position:absolute;pointer-events:none;}
+.color-btn{width:32px;height:28px;border-radius:7px;border:2px solid rgba(255,255,255,0.15);
+  cursor:pointer;transition:var(--tr);flex-shrink:0;position:relative;overflow:hidden;}
+.color-btn:hover{border-color:var(--g);transform:scale(1.05)}
+.color-btn input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.hex-inp{width:80px;background:var(--b2);border:1px solid var(--bd);border-radius:7px;
+  padding:5px 8px;color:var(--t1);font-size:0.73rem;font-family:'Courier New',monospace;
+  transition:var(--tr);letter-spacing:0.5px;}
+.hex-inp:focus{border-color:var(--g);background:rgba(46,204,113,0.06)}
+.range-val{font-size:0.7rem;color:var(--go);min-width:22px;text-align:right;font-weight:600}
+.design-sel{background:var(--b2);border:1px solid var(--bd);border-radius:8px;
+  padding:6px 10px;color:var(--t1);font-size:0.78rem;cursor:pointer;
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%232ECC71'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;
+  border:1px solid rgba(46,204,113,0.2);transition:var(--tr);}
+.design-sel:focus{border-color:var(--g);background-color:rgba(46,204,113,0.06)}
+.design-sel option{background:#2D0850;color:var(--t1)}
 .design-sel{background:var(--b2);border:1px solid var(--bd);border-radius:6px;
   padding:5px 9px;color:var(--t1);font-size:0.75rem;appearance:none;cursor:pointer;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%237B5BA6'/%3E%3C/svg%3E");
@@ -518,8 +532,10 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
           <div class="design-row">
             <span class="design-label">Background</span>
             <div style="display:flex;align-items:center;gap:6px">
-              <input type="color" class="color-inp" id="d-btn-bg" value="#2a0a4a" oninput="syncHex('d-btn-bg','hex-btn-bg');applyDesign()">
-              <input class="hex-inp" id="hex-btn-bg" placeholder="#2a0a4a" maxlength="7" oninput="syncColor('hex-btn-bg','d-btn-bg')">
+              <div class="color-btn" style="background:#2a0a4a">
+                <input type="color" id="d-btn-bg" value="#2a0a4a" oninput="syncHex('d-btn-bg','hex-btn-bg');updateColorBtn('d-btn-bg');applyDesign()">
+              </div>
+              <input class="hex-inp" id="hex-btn-bg" value="#2a0a4a" maxlength="7" oninput="syncColor('hex-btn-bg','d-btn-bg')">
             </div>
           </div>
           <div class="design-row">
@@ -530,17 +546,35 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
             </div>
           </div>
           <div class="design-row">
-            <span class="design-label">Shadow strength</span>
+            <span class="design-label">Shadow</span>
             <div style="display:flex;align-items:center;gap:6px;flex:1">
               <input type="range" class="range-inp" id="d-btn-shadow-strength" min="0" max="40" value="0" oninput="applyDesign()">
               <span class="range-val" id="v-btn-shadow">0</span>
             </div>
           </div>
           <div class="design-row">
+            <span class="design-label">Border width</span>
+            <div style="display:flex;align-items:center;gap:6px;flex:1">
+              <input type="range" class="range-inp" id="d-btn-border" min="0" max="4" value="0" oninput="applyDesign()">
+              <span class="range-val" id="v-btn-border">0</span>
+            </div>
+          </div>
+          <div class="design-row">
+            <span class="design-label">Border color</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div class="color-btn" style="background:#2ECC71">
+                <input type="color" id="d-btn-border-color" value="#2ECC71" oninput="syncHex('d-btn-border-color','hex-btn-border-color');updateColorBtn('d-btn-border-color');applyDesign()">
+              </div>
+              <input class="hex-inp" id="hex-btn-border-color" value="#2ECC71" maxlength="7" oninput="syncColor('hex-btn-border-color','d-btn-border-color')">
+            </div>
+          </div>
+          <div class="design-row">
             <span class="design-label">Shadow color</span>
             <div style="display:flex;align-items:center;gap:6px">
-              <input type="color" class="color-inp" id="d-btn-shadow-color" value="#000000" oninput="syncHex('d-btn-shadow-color','hex-btn-shadow');applyDesign()">
-              <input class="hex-inp" id="hex-btn-shadow" placeholder="#000000" maxlength="7" oninput="syncColor('hex-btn-shadow','d-btn-shadow-color')">
+              <div class="color-btn" style="background:#000000">
+                <input type="color" id="d-btn-shadow-color" value="#000000" oninput="syncHex('d-btn-shadow-color','hex-btn-shadow');updateColorBtn('d-btn-shadow-color');applyDesign()">
+              </div>
+              <input class="hex-inp" id="hex-btn-shadow" value="#000000" maxlength="7" oninput="syncColor('hex-btn-shadow','d-btn-shadow-color')">
             </div>
           </div>
         </div>
@@ -553,8 +587,10 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
           <div class="design-row">
             <span class="design-label">Color</span>
             <div style="display:flex;align-items:center;gap:6px">
-              <input type="color" class="color-inp" id="d-title-color" value="#ffffff" oninput="syncHex('d-title-color','hex-title-color');applyDesign()">
-              <input class="hex-inp" id="hex-title-color" placeholder="#ffffff" maxlength="7" oninput="syncColor('hex-title-color','d-title-color')">
+              <div class="color-btn" style="background:#ffffff">
+                <input type="color" id="d-title-color" value="#ffffff" oninput="syncHex('d-title-color','hex-title-color');updateColorBtn('d-title-color');applyDesign()">
+              </div>
+              <input class="hex-inp" id="hex-title-color" value="#ffffff" maxlength="7" oninput="syncColor('hex-title-color','d-title-color')">
             </div>
           </div>
           <div class="design-row"><span class="design-label">Font</span>
@@ -584,8 +620,10 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
           <div class="design-row">
             <span class="design-label">Color</span>
             <div style="display:flex;align-items:center;gap:6px">
-              <input type="color" class="color-inp" id="d-btn-font-color" value="#ffffff" oninput="syncHex('d-btn-font-color','hex-btn-font-color');applyDesign()">
-              <input class="hex-inp" id="hex-btn-font-color" placeholder="#ffffff" maxlength="7" oninput="syncColor('hex-btn-font-color','d-btn-font-color')">
+              <div class="color-btn" style="background:#ffffff">
+                <input type="color" id="d-btn-font-color" value="#ffffff" oninput="syncHex('d-btn-font-color','hex-btn-font-color');updateColorBtn('d-btn-font-color');applyDesign()">
+              </div>
+              <input class="hex-inp" id="hex-btn-font-color" value="#ffffff" maxlength="7" oninput="syncColor('hex-btn-font-color','d-btn-font-color')">
             </div>
           </div>
           <div class="design-row"><span class="design-label">Font</span>
@@ -629,8 +667,10 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:14px 2
           <div class="design-row">
             <span class="design-label">Color</span>
             <div style="display:flex;align-items:center;gap:6px">
-              <input type="color" class="color-inp" id="d-bg-color" value="#1E0438" oninput="syncHex('d-bg-color','hex-bg-color');applyDesign()">
-              <input class="hex-inp" id="hex-bg-color" placeholder="#1E0438" maxlength="7" oninput="syncColor('hex-bg-color','d-bg-color')">
+              <div class="color-btn" style="background:#1E0438">
+                <input type="color" id="d-bg-color" value="#1E0438" oninput="syncHex('d-bg-color','hex-bg-color');updateColorBtn('d-bg-color');applyDesign()">
+              </div>
+              <input class="hex-inp" id="hex-bg-color" value="#1E0438" maxlength="7" oninput="syncColor('hex-bg-color','d-bg-color')">
             </div>
           </div>
         </div>
@@ -779,9 +819,12 @@ let CU=null, UD={name:'',email:'',points:0,pages:[],avatar:null};
 let editIdx=null, adTimer=null, iconTargetItem=null;
 let pgAvUrl=null, bgUrl=null;
 let lang='en';
-let design={bgColor:'#1E0438',bgBlur:0,btnBg:'#2a0a4a',btnText:'#ffffff',
-  btnRadius:8,btnShadow:'none',titleColor:'#ffffff',titleFont:'Inter',titleSize:18,
-  btnFont:'Inter',btnFontColor:'#ffffff',btnFontSize:13,logoPos:'center',titlePos:'center'};
+let design={bgColor:'#1E0438',bgBlur:0,btnBg:'#2a0a4a',
+  btnRadius:8,btnShadowStrength:0,btnShadowColor:'#000000',
+  btnBorder:0,btnBorderColor:'#2ECC71',
+  titleColor:'#ffffff',titleFont:'Inter',titleSize:18,
+  btnFont:'Inter',btnFontColor:'#ffffff',btnFontSize:13,
+  logoPos:'center',titlePos:'center',btnAlign:'center'};
 
 const SOCIALS={
   instagram:{n:'Instagram',icon:'https://cdn.simpleicons.org/instagram/white'},
@@ -825,21 +868,28 @@ async function uploadFile(file, path, progressBarId){
 }
 
 // ── Auth state ──
-// Check public route immediately on load (before auth resolves)
+// ── Public page loads for EVERYONE, no login required ──
 const _initHash = window.location.hash;
 if(_initHash.startsWith('#p/')){
   const parts = _initHash.replace('#p/','').split('/');
-  if(parts.length>=2){ showPage('pg-public'); loadPublicPage(parts[0], parts[1]); }
+  if(parts.length>=2){
+    showPage('pg-public');
+    loadPublicPage(parts[0], parts[1]);
+    // Still listen for auth but don't redirect
+    onAuthStateChanged(auth, async user=>{ if(user){ CU=user; await loadUD(user); } });
+  }
+} else {
+  // Normal app flow
+  onAuthStateChanged(auth, async user=>{
+    if(user){ CU=user; await loadUD(user); showPage('pg-dash'); }
+    else { showPage('pg-land'); }
+  });
 }
-
-onAuthStateChanged(auth, async user=>{
-  const hash = window.location.hash;
-  const isPublic = hash.startsWith('#p/');
-  if(user){
-    CU=user; await loadUD(user);
-    if(!isPublic) showPage('pg-dash');
-  } else {
-    if(!isPublic) showPage('pg-land');
+window.addEventListener('hashchange', ()=>{
+  const h=window.location.hash;
+  if(h.startsWith('#p/')){
+    const parts=h.replace('#p/','').split('/');
+    if(parts.length>=2){ showPage('pg-public'); loadPublicPage(parts[0],parts[1]); }
   }
 });
 
@@ -895,8 +945,9 @@ function renderPublicPage(p){
   pubBio.textContent=p.bio||'';
   pubBio.style.textAlign=d.titlePos||'center';
   // Avatar align
+  const logoAlign=d.logoPos||'center';
   document.getElementById('pub-av').style.alignSelf=
-    d.logoPos==='left'?'flex-start':d.logoPos==='right'?'flex-end':'center';
+    logoAlign==='left'?'flex-start':logoAlign==='right'?'flex-end':'center';
   // Links
   const pl=document.getElementById('pub-links');
   pl.innerHTML='';
@@ -912,6 +963,8 @@ function renderPublicPage(p){
     a.style.fontSize=(d.btnFontSize||13)+'px';
     a.style.borderRadius=(d.btnRadius||8)+'px';
     a.style.boxShadow=shadowVal;
+    const bw=parseInt(d.btnBorder||0);
+    a.style.border=bw>0?`${bw}px solid ${d.btnBorderColor||'#2ECC71'}`:'none';
     a.style.justifyContent=d.titlePos==='left'?'flex-start':d.titlePos==='right'?'flex-end':'center';
     const imgSrc=l.iconUrl||l.icon;
     if(imgSrc) a.innerHTML=`<img src="${imgSrc}" alt="" style="width:20px;height:20px;border-radius:4px;object-fit:cover"><span>${l.label||''}</span>`;
@@ -928,7 +981,7 @@ Object.assign(window,{
   handleNewPage,addLink,savePage,copyUrl,switchBTab,
   updateMiniPreview,applyDesign,setPos,
   handlePgAvUpload,handleBgUpload,handleAcctAvUpload,
-  openIconModal,closeIconModal,handleCustomIconUpload,selectSocialIcon,syncHex,syncColor,
+  openIconModal,closeIconModal,handleCustomIconUpload,selectSocialIcon,syncHex,syncColor,updateColorBtn,
 });
 
 function showPage(id){
@@ -1192,11 +1245,22 @@ function syncHex(colorId, hexId){
   const c=document.getElementById(colorId);
   const h=document.getElementById(hexId);
   if(c&&h) h.value=c.value;
+  updateColorBtn(colorId);
 }
 function syncColor(hexId, colorId){
   const h=document.getElementById(hexId);
   const c=document.getElementById(colorId);
-  if(h&&c&&/^#[0-9A-Fa-f]{6}$/.test(h.value)){ c.value=h.value; applyDesign(); }
+  if(h&&c&&/^#[0-9A-Fa-f]{6}$/.test(h.value)){
+    c.value=h.value;
+    updateColorBtn(colorId);
+    applyDesign();
+  }
+}
+function updateColorBtn(colorId){
+  const c=document.getElementById(colorId);
+  if(!c) return;
+  const btn=c.closest('.color-btn');
+  if(btn) btn.style.background=c.value;
 }
 function applyDesign(){
   const g=id=>{const el=document.getElementById(id);return el?el.value:null};
@@ -1214,6 +1278,12 @@ function applyDesign(){
     if(vs) vs.textContent=design.btnShadowStrength;
   }
   if(g('d-btn-shadow-color')) design.btnShadowColor=g('d-btn-shadow-color');
+  if(g('d-btn-border')){
+    design.btnBorder=g('d-btn-border');
+    const vb=document.getElementById('v-btn-border');
+    if(vb) vb.textContent=design.btnBorder;
+  }
+  if(g('d-btn-border-color')) design.btnBorderColor=g('d-btn-border-color');
   if(g('d-title-color')) design.titleColor=g('d-title-color');
   if(g('d-title-font')) design.titleFont=g('d-title-font');
   if(g('d-title-size')){
@@ -1269,10 +1339,11 @@ function updateMiniPreview(){
   miniName.style.color=design.titleColor;
   miniName.style.fontFamily=design.titleFont;
   miniName.style.fontSize=Math.round(design.titleSize*0.5)+'px';
-  miniName.style.textAlign=design.titlePos;
+  miniName.style.textAlign=design.titlePos||'center';
 
-  document.getElementById('mini-bio').textContent=bio;
-  document.getElementById('mini-bio').style.textAlign=design.titlePos;
+  const miniBioEl=document.getElementById('mini-bio');
+  miniBioEl.textContent=bio;
+  miniBioEl.style.textAlign=design.titlePos||'center';
 
   // Links
   const ml=document.getElementById('mini-links'); ml.innerHTML='';
@@ -1288,7 +1359,9 @@ function updateMiniPreview(){
     d.style.fontSize=Math.round(design.btnFontSize*0.6)+'px';
     d.style.borderRadius=Math.round(design.btnRadius*0.6)+'px';
     d.style.boxShadow=shadowVal;
-    d.style.justifyContent=design.titlePos==='left'?'flex-start':design.titlePos==='right'?'flex-end':'center';
+    const bw=parseInt(design.btnBorder||0);
+    d.style.border=bw>0?`${bw}px solid ${design.btnBorderColor||'#2ECC71'}`:'none';
+    const ba=design.btnAlign||'center'; d.style.justifyContent=ba==='left'?'flex-start':ba==='right'?'flex-end':'center';
     if(iconUrl) d.innerHTML=`<img src="${iconUrl}" alt="" style="width:11px;height:11px;border-radius:2px;object-fit:cover"><span>${lbl}</span>`;
     else d.textContent=lbl;
     ml.appendChild(d);
