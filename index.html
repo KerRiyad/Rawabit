@@ -825,16 +825,21 @@ async function uploadFile(file, path, progressBarId){
 }
 
 // ── Auth state ──
+// Check public route immediately on load (before auth resolves)
+const _initHash = window.location.hash;
+if(_initHash.startsWith('#p/')){
+  const parts = _initHash.replace('#p/','').split('/');
+  if(parts.length>=2){ showPage('pg-public'); loadPublicPage(parts[0], parts[1]); }
+}
+
 onAuthStateChanged(auth, async user=>{
   const hash = window.location.hash;
   const isPublic = hash.startsWith('#p/');
   if(user){
     CU=user; await loadUD(user);
-    if(isPublic) checkPublicRoute();
-    else showPage('pg-dash');
+    if(!isPublic) showPage('pg-dash');
   } else {
-    if(isPublic) checkPublicRoute();
-    else showPage('pg-land');
+    if(!isPublic) showPage('pg-land');
   }
 });
 
