@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="monetag" content="5e4e51cf1fed3875222e5fdcc3b376a5">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init("RDT4_DiQLlGr9EOqo");</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8602834049332481" crossorigin="anonymous"></script>
 <title>Rawabit</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -216,7 +218,9 @@ nav{
 .thm-row{display:flex;gap:6px;flex-wrap:wrap}
 .thm{width:30px;height:30px;border-radius:8px;border:2px solid transparent;cursor:pointer;transition:var(--tr)}
 .thm.on{border-color:var(--gold);transform:scale(1.1)}
-.sb-logout{margin:10px 14px 14px;width:calc(100% - 28px);background:rgba(220,53,69,0.08);border:1px solid rgba(220,53,69,0.2);border-radius:9px;padding:9px;color:#e05565;font-size:0.82rem;font-weight:600;transition:var(--tr)}
+.sb-delete-btn{margin:6px 14px 14px;width:calc(100% - 28px);background:transparent;border:none;color:rgba(220,53,69,0.5);font-size:0.75rem;font-weight:500;cursor:pointer;padding:4px;transition:var(--tr)}
+.sb-delete-btn:hover{color:#e05565}
+.sb-logout{margin:10px 14px 0;width:calc(100% - 28px);background:rgba(220,53,69,0.08);border:1px solid rgba(220,53,69,0.2);border-radius:9px;padding:9px;color:#e05565;font-size:0.82rem;font-weight:600;transition:var(--tr)}
 .sb-logout:hover{background:rgba(220,53,69,0.15)}
 
 /* ── BUILDER ── */
@@ -490,6 +494,14 @@ nav{
 .share-url-info{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--t2);font-size:0.72rem;font-family:'Courier New',monospace;min-width:0}
 .copy-btn-info{background:rgba(75,233,104,0.1);border:1px solid rgba(75,233,104,0.2);border-radius:7px;padding:8px 14px;color:var(--green);font-size:0.76rem;font-weight:600;transition:var(--tr);flex-shrink:0}
 .copy-btn-info:hover{background:rgba(75,233,104,0.18)}
+.otp-inp{
+  width:42px;height:50px;border-radius:10px;
+  background:var(--card);border:1.5px solid var(--border);
+  color:var(--t1);font-size:1.4rem;font-weight:700;
+  text-align:center;transition:var(--tr);
+}
+.otp-inp:focus{border-color:var(--green);background:rgba(75,233,104,0.05);outline:none}
+.otp-inp.filled{border-color:var(--green)}
 .uprog{width:100%;height:2px;background:var(--card);border-radius:2px;margin-top:5px;overflow:hidden;display:none}
 .uprog-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--greend));border-radius:2px;transition:width 0.3s;width:0%}
 
@@ -838,6 +850,30 @@ nav{
   </div>
 </div>
 
+<!-- VERIFY EMAIL PAGE -->
+<div id="pg-verify" class="page">
+  <nav><div class="nav-logo"><img src="https://i.imgur.com/qG8iu7J.png" alt="R"></div></nav>
+  <div class="auth-wrap">
+    <div class="auth-card" style="text-align:center">
+      <div style="font-size:2.2rem;margin-bottom:14px">📧</div>
+      <div class="auth-h">Verify your email</div>
+      <p class="auth-p" id="verify-sub" style="margin-bottom:20px">We sent a 6-digit code to your email. Enter it below to activate your account.</p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:18px" id="otp-inputs">
+        <input class="otp-inp" maxlength="1" id="otp0" oninput="otpInput(0)" onkeydown="otpKey(event,0)">
+        <input class="otp-inp" maxlength="1" id="otp1" oninput="otpInput(1)" onkeydown="otpKey(event,1)">
+        <input class="otp-inp" maxlength="1" id="otp2" oninput="otpInput(2)" onkeydown="otpKey(event,2)">
+        <input class="otp-inp" maxlength="1" id="otp3" oninput="otpInput(3)" onkeydown="otpKey(event,3)">
+        <input class="otp-inp" maxlength="1" id="otp4" oninput="otpInput(4)" onkeydown="otpKey(event,4)">
+        <input class="otp-inp" maxlength="1" id="otp5" oninput="otpInput(5)" onkeydown="otpKey(event,5)">
+      </div>
+      <button class="auth-submit" onclick="verifyOtp()" style="margin-bottom:10px">Verify Code</button>
+      <button style="width:100%;padding:10px;background:transparent;border:1px solid var(--border);border-radius:9px;color:var(--t2);font-size:0.83rem;cursor:pointer;margin-bottom:10px" onclick="resendOtp()">Resend code</button>
+      <div style="font-size:0.75rem;color:var(--t3);margin-bottom:10px" id="otp-timer"></div>
+      <div class="auth-back" onclick="doLogout()">← Sign out</div>
+    </div>
+  </div>
+</div>
+
 <!-- SIDEBAR -->
 <div class="overlay" id="sb-overlay" onclick="closeSB()"></div>
 <div class="sidebar" id="sidebar">
@@ -871,6 +907,7 @@ nav{
     </div>
   </div>
   <button class="sb-logout" onclick="doLogout()">Sign out</button>
+  <button class="sb-delete-btn" onclick="confirmDeleteAccount()">Delete Account</button>
 </div>
 
 <!-- AD MODAL -->
@@ -958,7 +995,7 @@ nav{
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail, sendEmailVerification } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
@@ -1093,7 +1130,28 @@ if(_h.startsWith('#p/')){const p=_h.replace('#p/','').split('/');if(p.length>=2)
 window.addEventListener('hashchange',()=>{const h=window.location.hash;if(h.startsWith('#p/')){const p=h.replace('#p/','').split('/');if(p.length>=2){showPage('pg-public');loadPub(p[0],p[1]);}}});
 onAuthStateChanged(auth,async user=>{
   if(window.location.hash.startsWith('#p/'))return;
-  if(user){CU=user;await loadUD(user);showPage('pg-dash');}
+  if(user){
+    CU=user;
+    try{
+      const snap=await getDoc(doc(db,'users',user.uid));
+      if(snap.exists()){
+        // Verified user — load and go to dashboard
+        await loadUD(user);showPage('pg-dash');
+      } else {
+        // Auth account exists but no Firestore doc = not verified yet
+        // Send new OTP
+        const sent=await sendOtp(user.email,user.displayName||'User');
+        UD={name:user.displayName||'User',email:user.email,points:0,pages:[],avatar:null};
+        if(sent){
+          showPage('pg-verify');
+          document.getElementById('verify-sub').textContent='We sent a 6-digit code to '+user.email;
+          document.getElementById('otp0').focus();
+        } else {
+          showPage('pg-land');
+        }
+      }
+    }catch(e){showPage('pg-land');}
+  }
   else showPage('pg-land');
 });
 
@@ -1204,7 +1262,7 @@ function hexToRgba(hex,alpha){
 }
 
 // ── Expose ──
-Object.assign(window,{showPage,switchTab,openLinkColorPicker,doLogin,doSignup,doForgot,doLogout,toggleSB,closeSB,setLang,setTheme,openAdModal,closeAdModal,claimPoints,closeLocked,spendPoints,handleNewPage,addLink,savePage,copyUrl,switchBTab,updatePreview,setPos,handlePgAv,handleBg,handleAcctAv,openIconModal,closeIconModal,handleCustomIcon,selectSocialIcon,rv,hexChange,openFontSheet,openBSheet,closeBSheet,openLangSheet,openCp,closeCp,cpHex,cpNative,cpConfirm,leaveBuilder,buildCPs});
+Object.assign(window,{showPage,switchTab,openLinkColorPicker,checkVerification,resendVerification,confirmDeleteAccount,verifyOtp,resendOtp,otpInput,otpKey,doLogin,doSignup,doForgot,doLogout,toggleSB,closeSB,setLang,setTheme,openAdModal,closeAdModal,claimPoints,closeLocked,spendPoints,handleNewPage,addLink,savePage,copyUrl,switchBTab,updatePreview,setPos,handlePgAv,handleBg,handleAcctAv,openIconModal,closeIconModal,handleCustomIcon,selectSocialIcon,rv,hexChange,openFontSheet,openBSheet,closeBSheet,openLangSheet,openCp,closeCp,cpHex,cpNative,cpConfirm,leaveBuilder,buildCPs});
 
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1213,6 +1271,131 @@ function showPage(id){
   const sb=document.getElementById('bldr-save-bar');
   if(sb)sb.classList.toggle('on',id==='pg-builder');
   if(id!=='pg-public')window.scrollTo(0,0);
+}
+
+// ── OTP System ──
+let _otpCode=null, _otpExpiry=null, _otpTimerInterval=null;
+
+function generateOtp(){
+  return Math.floor(100000+Math.random()*900000).toString();
+}
+
+async function sendOtp(email, name){
+  _otpCode=generateOtp();
+  _otpExpiry=Date.now()+(10*60*1000); // 10 minutes
+  try{
+    await emailjs.send('service_jyp7mai','template_ypmddi4',{
+      to_email:email,
+      to_name:name||'User',
+      code:_otpCode
+    });
+    startOtpTimer();
+    return true;
+  }catch(e){
+    console.error('EmailJS error:',e);
+    toast('Failed to send code. Try again.');
+    return false;
+  }
+}
+
+function startOtpTimer(){
+  clearInterval(_otpTimerInterval);
+  const timerEl=document.getElementById('otp-timer');
+  _otpTimerInterval=setInterval(()=>{
+    const remaining=Math.max(0,Math.round((_otpExpiry-Date.now())/1000));
+    if(timerEl) timerEl.textContent=remaining>0?'Code expires in '+remaining+'s':'Code expired';
+    if(remaining<=0) clearInterval(_otpTimerInterval);
+  },1000);
+}
+
+function otpInput(idx){
+  const el=document.getElementById('otp'+idx);
+  if(el.value){
+    el.classList.add('filled');
+    if(idx<5) document.getElementById('otp'+(idx+1)).focus();
+    // Auto verify when all filled
+    const code=[...Array(6)].map((_,i)=>document.getElementById('otp'+i).value).join('');
+    if(code.length===6) verifyOtp();
+  }
+}
+
+function otpKey(e,idx){
+  if(e.key==='Backspace'&&!document.getElementById('otp'+idx).value&&idx>0){
+    document.getElementById('otp'+(idx-1)).focus();
+  }
+}
+
+function getOtpValue(){
+  return [...Array(6)].map((_,i)=>document.getElementById('otp'+i).value).join('');
+}
+
+function clearOtpInputs(){
+  for(let i=0;i<6;i++){
+    const el=document.getElementById('otp'+i);
+    if(el){el.value='';el.classList.remove('filled');}
+  }
+}
+
+async function verifyOtp(){
+  const entered=getOtpValue();
+  if(entered.length<6){toast('Enter all 6 digits');return;}
+  if(!_otpCode||Date.now()>_otpExpiry){toast('Code expired. Request a new one.');return;}
+  if(entered!==_otpCode){toast('Wrong code. Try again.');clearOtpInputs();document.getElementById('otp0').focus();return;}
+  // Code correct! Now save user to Firestore
+  clearInterval(_otpTimerInterval);
+  _otpCode=null;
+  try{
+    // Check if already saved (returning user who never completed verification)
+    const snap=await getDoc(doc(db,'users',CU.uid));
+    if(!snap.exists()){
+      // First time verified — save to Firestore now
+      await setDoc(doc(db,'users',CU.uid),{
+        name:UD.name||CU.displayName||'User',
+        email:UD.email||CU.email,
+        points:0,pages:[],avatar:null,
+        verifiedAt:Date.now()
+      });
+    }
+    await loadUD(CU);
+    toast('Account verified! Welcome to Rawabit!');
+    showPage('pg-dash');
+  }catch(e){
+    toast('Error saving account. Try again.');
+  }
+}
+
+async function resendOtp(){
+  if(!CU){return;}
+  clearOtpInputs();
+  const sent=await sendOtp(CU.email, CU.displayName||'User');
+  if(sent) toast('New code sent!');
+}
+
+async function checkVerification(){
+  verifyOtp();
+}
+
+async function resendVerification(){
+  resendOtp();
+}
+
+async function confirmDeleteAccount(){
+  if(!confirm('Delete your account permanently? All your pages and data will be lost. This cannot be undone.')) return;
+  if(!confirm('Are you sure? This action is irreversible.')) return;
+  try{
+    // Delete user data from Firestore
+    const {deleteDoc} = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await deleteDoc(doc(db,'users',CU.uid));
+    // Delete Firebase Auth account
+    const {deleteUser} = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    await deleteUser(CU);
+    CU=null; UD={name:'',email:'',points:0,pages:[],avatar:null};
+    closeSB(); showPage('pg-land'); toast('Account deleted');
+  }catch(e){
+    if(e.code==='auth/requires-recent-login'){
+      toast('Please sign out and sign in again before deleting your account');
+    } else { toast('Error: '+e.message); }
+  }
 }
 
 async function leaveBuilder(){
@@ -1231,7 +1414,26 @@ function switchTab(t){['login','signup','forgot'].forEach(x=>{document.getElemen
 async function doSignup(){
   const n=document.getElementById('s-name').value.trim(),e=document.getElementById('s-email').value.trim(),p=document.getElementById('s-pass').value;
   if(!n||!e||p.length<6){toast('Please fill all fields correctly');return;}
-  try{const c=await createUserWithEmailAndPassword(auth,e,p);await updateProfile(c.user,{displayName:n});await setDoc(doc(db,'users',c.user.uid),{name:n,email:e,points:0,pages:[],avatar:null});UD={name:n,email:e,points:0,pages:[],avatar:null};CU=c.user;refreshDash();showPage('pg-dash');toast('Welcome to Rawabit!');}
+  try{
+    // Create Firebase Auth account
+    const c=await createUserWithEmailAndPassword(auth,e,p);
+    await updateProfile(c.user,{displayName:n});
+    CU=c.user;
+    UD={name:n,email:e,points:0,pages:[],avatar:null};
+    // Send OTP - DON'T save to Firestore yet
+    toast('Sending verification code...');
+    const sent=await sendOtp(e,n);
+    if(sent){
+      showPage('pg-verify');
+      document.getElementById('verify-sub').textContent='We sent a 6-digit code to '+e;
+      document.getElementById('otp0').focus();
+    } else {
+      // OTP failed - delete auth account
+      await c.user.delete();
+      CU=null;
+      toast('Failed to send code. Try again.');
+    }
+  }
   catch(err){toast(err.code==='auth/email-already-in-use'?'Email already in use':err.message);}
 }
 async function doLogin(){
