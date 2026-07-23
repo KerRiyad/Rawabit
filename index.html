@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="monetag" content="5e4e51cf1fed3875222e5fdcc3b376a5">
+<meta name="monetag" content="8bb929ba3df8663b0562d73c7026b23a">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>emailjs.init("RDT4_DiQLlGr9EOqo");</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8602834049332481" crossorigin="anonymous"></script>
@@ -1290,6 +1290,20 @@ async function sendOtp(email, name){
       code:_otpCode
     });
     startOtpTimer();
+    // Auto-delete account after 10 minutes if not verified
+    setTimeout(async()=>{
+      if(_otpCode&&CU){
+        try{
+          const snap=await getDoc(doc(db,'users',CU.uid));
+          if(!snap.exists()){
+            await CU.delete();
+            CU=null;_otpCode=null;
+            showPage('pg-land');
+            toast('Session expired. Please register again.');
+          }
+        }catch(e){}
+      }
+    },10*60*1000);
     return true;
   }catch(e){
     console.error('EmailJS error:',e);
@@ -1443,9 +1457,26 @@ async function doLogin(){
   catch(err){toast('Wrong email or password');}
 }
 async function doForgot(){
-  const e=document.getElementById('fg-email').value.trim();if(!e){toast('Enter your email');return;}
-  try{await sendPasswordResetEmail(auth,e);toast('Reset link sent!');switchTab('login');}
-  catch(err){toast('No account found');}
+  const e=document.getElementById('fg-email').value.trim();
+  if(!e){toast('Enter your email');return;}
+  try{
+    // Check if user exists
+    await sendPasswordResetEmail(auth,e);
+    // Also send via EmailJS for better UX
+    try{
+      await emailjs.send('service_jyp7mai','template_nhvg8lm',{
+        to_email:e,
+        to_name:'User',
+        reset_link:'Check your email from Firebase for the reset link'
+      });
+    }catch(ejsErr){console.log('EmailJS optional:',ejsErr);}
+    toast('Password reset email sent!');
+    switchTab('login');
+  }
+  catch(err){
+    if(err.code==='auth/user-not-found'){toast('No account with this email');}
+    else toast('Error. Try again.');
+  }
 }
 function doLogout(){signOut(auth).then(()=>{CU=null;UD={name:'',email:'',points:0,pages:[],avatar:null};closeSB();showPage('pg-land');toast('Signed out');});}
 
